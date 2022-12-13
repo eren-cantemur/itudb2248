@@ -16,20 +16,65 @@ CREATE TABLE IF NOT EXISTS combine (
     playerId INTEGER,
     combineYear INTEGER,
     combinePosition TEXT,
-    combineHeight FLOAT,
-    combineWeight FLOAT,
-    combineHand FLOAT
+    combineHeight REAL,
+    combineWeight REAL,
+    combineHand REAL
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS fumbles (
+    fumId INTEGER PRIMARY KEY,
+    playId INTEGER,
+    playerId INTEGER,
+    fumPosition TEXT,
+    fumType TEXT,
+    fumOOB INTEGER,
+    fumTurnover REAL,
+    fumNull INTEGER
+)
+""")
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS games (
+    gameId INTEGER PRIMARY KEY,
+    season INTEGER,
+    week INTEGER,
+    gameDate TEXT,
+    gameTimeEastern TEXT,
+    gameTimeLocal TEXT,
+    seasonType REAL
+)
+""")
+conn.commit()
 # Read data from CSV file and write it to the database
-with open('data.csv') as csvfile:
+with open('combine.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute(" INSERT INTO combine (combineId, playerId, combineYear, combinePosition, combineHeight, combineWeight, combineHand) VALUES (?, ?, ?, ?, ?, ?, ?)", (row['combineId'], row['playerId'], row['combineYear'], row['combinePosition'], row['combineHeight'], row['combineWeight'], row['combineHand']))
+    print(row["combineId"])
+conn.commit()
+
+
+with open('fumbles.csv') as csvfile:
   reader = csv.DictReader(csvfile)
   for row in reader:
     cursor.execute("""
-      INSERT INTO my_table (id, name, age)
-      VALUES (?, ?, ?)
-    """, (row['combineId'], row['playerId'], row['combineYear'], row['combinePosition'], row['combineHeight'], row['combineWeight'], row['combineHand']))
+      INSERT INTO fumbles (fumId, playId, playerId, fumPosition, fumType, fumOOB, fumTurnover, fumNull)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (row['fumId'], row['playId'], row['playerId'], row['fumPosition'], row['fumType'], row['fumOOB'], row['fumTurnover'], row['fumNull']))
+
+conn.commit()
+with open('games.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute("""
+      INSERT INTO games (gameId, season, week, gameDate, gameTimeEastern, gameTimeLocal, seasonType)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (row['gameId'], row['season'], row['week'], row['gameDate'], row['gameTimeEastern'],
+          row['gameTimeLocal'], row['seasonType']))
+
 
 # Save (commit) the changes
 conn.commit()
