@@ -10,10 +10,14 @@ cursor = conn.cursor()
 
 # Create a table
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS my_table (
-  id INTEGER PRIMARY KEY,
-  name TEXT,
-  age INTEGER
+CREATE TABLE IF NOT EXISTS combine (
+    combineId INTEGER PRIMARY KEY,
+    playerId INTEGER,
+    combineYear INTEGER,
+    combinePosition TEXT,
+    combineHeight FLOAT,
+    combineWeight FLOAT,
+    combineHand FLOAT
 )
 """)
 
@@ -24,7 +28,7 @@ with open('data.csv') as csvfile:
     cursor.execute("""
       INSERT INTO my_table (id, name, age)
       VALUES (?, ?, ?)
-    """, (row['id'], row['name'], row['age']))
+    """, (row['combineId'], row['playerId'], row['combineYear'], row['combinePosition'], row['combineHeight'], row['combineWeight'], row['combineHand']))
 
 # Save (commit) the changes
 conn.commit()
