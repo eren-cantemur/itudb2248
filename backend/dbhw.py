@@ -23,7 +23,7 @@ def get_table_data(table):
     foreignIndexes = []
     foreignTables = []
 
-    if (table == "combines"):
+    if (table == "combine"):
         foreignIndexes = [1]
         foreignTables = ["players"]
 
@@ -37,11 +37,11 @@ def get_table_data(table):
                            foreignIndexes=foreignIndexes, foreignTables=[foreignTables])
 
 
-@app.route('/get_row_data/<table>/<id>', methods=['GET'])
-def get_row(table, id):
+@app.route('/get_row_data/<table>/<idName>/<id>', methods=['GET'])
+def get_row(table, idName, id):
     # Retrieve row from database
     connection = sqlite3.connect('my_database.db')
-    query = "SELECT * FROM {} WHERE id = ?".format(table)
+    query = "SELECT * FROM {} WHERE {} = ?".format(table, idName)
     c = connection.execute(query, (id,))
     names = list(map(lambda x: x[0], c.description))
     row = c.fetchall()
