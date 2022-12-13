@@ -10,23 +10,43 @@ cursor = conn.cursor()
 
 # Create a table
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS my_table (
-  id INTEGER PRIMARY KEY,
-  name TEXT,
-  age INTEGER
+CREATE TABLE IF NOT EXISTS gameParticipation (
+  gamePartId INTEGER PRIMARY KEY,
+  gameId TEXT,
+  playerId INTEGER,
+  gamePartUnit INTEGER,
+  gamePartSnapCount INTEGER,
+  playerProfileUri TEXT,
+  homeCity TEXT,
+  homeState TEXT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXIST plays (
+  playId INTEGER PRIMARY KEY,
+  gameID INTEGER,
+  playSequence INTEGER,
+  quarter INTEGER,
+  playType TEXT,
+  playType2 TEXT,
+  playNumberByTeam INTEGER
 )
 """)
 
 # Read data from CSV file and write it to the database
-with open('data.csv') as csvfile:
+with open('gameParticipation.csv') as csvfile:
   reader = csv.DictReader(csvfile)
   for row in reader:
-    cursor.execute("""
-      INSERT INTO my_table (id, name, age)
-      VALUES (?, ?, ?)
-    """, (row['id'], row['name'], row['age']))
+    cursor.execute(" INSERT INTO gamePaticipation (gamePartId, gameId, playerId, gamePartUnit, gamePartSnapCount, playerProfileUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (row['gamePartId'], row['gameId'], row['playerId'], row['gamePartUnit'], row['gamePartSnapCount'], row['playerProfileUri'], row['homeCity'], row['homeState']))
+    print(row["gamePartId"])
+conn.commit()
 
-# Save (commit) the changes
+with open('plays.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute(" INSERT INTO plays (playId, gameID, playSequence, quarter, playType, playType2, playNumberByTeam) VALUES (?, ?, ?, ?, ?, ?, ?)", (row['playId'], row['gameId'], row['playSequence'], row['quarter'], row['playType'], row['playType2'], row['playNumberByTeam']))
+    print(row["playId"])
 conn.commit()
 
 # Function to retrieve all rows from the database
