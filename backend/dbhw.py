@@ -26,9 +26,11 @@ def get_table_data(table):
     if (table == "combines"):
         foreignIndexes = [1]
         foreignTables = ["players"]
+
     if (table == "fumbles"):
         foreignIndexes = [1, 2]
         foreignTables = ["plays", "players"]
+
     # close connection
     conn.close()
     return render_template("main_page.html", rows=table_data, table_name=table, column_names=names,
