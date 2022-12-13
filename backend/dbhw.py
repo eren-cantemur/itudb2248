@@ -89,23 +89,6 @@ def insert_table_row(table):
 
 
 
-# client side
-@app.route('/get')
-def home():
-    # Connect to the database
-    conn = sqlite3.connect('my_database.db')
-    c = conn.cursor()
-
-    # Retrieve all data from the combine table
-
-    rows = c.fetchall()
-
-    # Close the connection
-    conn.close()
-
-    # Render the data as a table in a web page
-    return render_template("main_page.html", combine_rows=rows)
-
 # Pass the rows to the template to be rendered as an HTML table
 
 
