@@ -1,201 +1,112 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify, render_template
 import sqlite3
 import csv
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../frontend')
 
 # Connect to the database
 conn = sqlite3.connect('my_database.db')
 cursor = conn.cursor()
 
-# Create a table
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS gameParticipation (
-  gamePartId INTEGER PRIMARY KEY,
-  gameId TEXT,
-  playerId INTEGER,
-  gamePartUnit INTEGER,
-  gamePartSnapCount INTEGER,
-  playerProfileUri TEXT,
-  homeCity TEXT,
-  homeState TEXT
-)
-""")
+@app.route('/get_table_data/<table>', methods=['GET'])
+def get_table_data(table):
+    # connect to sqlite database
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
 
-cursor.execute("""
-CREATE TABLE IF NOT EXIST plays (
-  playId INTEGER PRIMARY KEY,
-  gameID INTEGER,
-  playSequence INTEGER,
-  quarter INTEGER,
-  playType TEXT,
-  playType2 TEXT,
-  playNumberByTeam INTEGER
-)
-""")
+    # retrieve all rows from specified table
+    c.execute(f"SELECT * FROM {table}")
+    table_data = c.fetchall()
+    names = list(map(lambda x: x[0], c.description))
+    foreignIndexes = []
+    foreignTables = []
 
-# Read data from CSV file and write it to the database
-with open('gameParticipation.csv') as csvfile:
-  reader = csv.DictReader(csvfile)
-  for row in reader:
-    cursor.execute(" INSERT INTO gamePaticipation (gamePartId, gameId, playerId, gamePartUnit, gamePartSnapCount, playerProfileUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (row['gamePartId'], row['gameId'], row['playerId'], row['gamePartUnit'], row['gamePartSnapCount'], row['playerProfileUri'], row['homeCity'], row['homeState']))
-    print(row["gamePartId"])
-conn.commit()
-
-with open('plays.csv') as csvfile:
-  reader = csv.DictReader(csvfile)
-  for row in reader:
-    cursor.execute(" INSERT INTO plays (playId, gameID, playSequence, quarter, playType, playType2, playNumberByTeam) VALUES (?, ?, ?, ?, ?, ?, ?)", (row['playId'], row['gameId'], row['playSequence'], row['quarter'], row['playType'], row['playType2'], row['playNumberByTeam']))
-    print(row["playId"])
-conn.commit()
-
-# Function to retrieve all rows from the database
-def get_all_rows():
-  cursor.execute("""
-    SELECT * FROM my_table
-  """)
-  return cursor.fetchall()
-
-def row_exists(id):
-  cursor.execute("""
-    SELECT 1 FROM my_table
-    WHERE id = ?
-  """, (id,))
-  return cursor.fetchone() is not None
-
-# Function to search for rows that match a given search term
-def search_rows(search_term):
-  cursor.execute("""
-    SELECT * FROM my_table
-    WHERE name LIKE ? OR age LIKE ?
-  """, (f"%{search_term}%", f"%{search_term}%"))
-  return cursor.fetchall()
-
-# Function to count the number of rows in the database
-def count_rows():
-  cursor.execute("""
-    SELECT COUNT(*) FROM my_table
-  """)
-  return cursor.fetchone()[0]
-
-# Function to retrieve a single row by id
-def get_row(id):
-  cursor.execute("""
-    SELECT * FROM my_table
-    WHERE id = ?
-  """, (id,))
-  return cursor.fetchone()
-
-# Function to update a row by id
-def update_row(id, name, age):
-  cursor.execute("""
-    UPDATE my_table
-    SET name = ?, age = ?
-    WHERE id = ?
-  """, (name, age, id))
-  conn.commit()
-
-def add_row(name, age):
-  cursor.execute("""
-    INSERT INTO my_table (name, age)
-    VALUES (?, ?)
-  """, (name, age))
-  conn.commit()
-
-# Function to delete a row by id
-def delete_row(id):
-  cursor.execute("""
-    DELETE FROM my_table
-    WHERE id = ?
-  """, (id,))
-  conn.commit()
-
-# Close the connection
-conn.close()
+    if (table == "gameParticipation"):
+        foreignIndexes = [1, 2]
+        foreignTables = ["games", "players"]
+    if (table == "plays"):
+        foreignIndexes = [1]
+        foreignTables = ["games"]
+    # close connection
+    conn.close()
+    return render_template("main_page.html", rows=table_data, table_name=table, column_names=names,
+                           foreignIndexes=foreignIndexes, foreignTables=[foreignTables])
 
 
-@app.route('/add_row', methods=['POST'])
-def add_row():
-  # Parse the request data
-  data = request.get_json()
-  name = data.get('name')
-  age = data.get('age')
+@app.route('/get_row_data/<table>/<id>', methods=['GET'])
+def get_row(table, id):
+    # Retrieve row from database
+    connection = sqlite3.connect('my_database.db')
+    query = "SELECT * FROM {} WHERE id = ?".format(table)
+    c = connection.execute(query, (id,))
+    names = list(map(lambda x: x[0], c.description))
+    row = c.fetchall()
+    foreignIndexes = []
+    foreignTables = []
 
-  # Add the row to the database
-  add_row(name, age)
+    if (table == "gameParticipation"):
+        foreignIndexes = [1, 2]
+        foreignTables = ["games", "players"]
+    if (table == "plays"):
+        foreignIndexes = [1]
+        foreignTables = ["games"]
 
-  # Return a success response
-  return jsonify({'success': True})
+    return render_template("main_page.html", rows=row, table_name=table, column_names=names,
+                           foreignIndexes=foreignIndexes, foreignTables=[foreignTables])
 
-  # API route to check if a row with a given id exists in the database
-@app.route('/row_exists', methods=['POST'])
-def row_exists():
-  # Parse the request data
-  data = request.get_json()
-  id = data.get('id')
 
-  # Check if the row exists
-  exists = row_exists(id)
+@app.route('/insert_row/<table>', methods=['POST'])
+def insert_table_row(table):
+    # connect to sqlite database
+    print("in")
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
 
-  # Return the result
-  return jsonify({'exists': exists})
+    # retrieve values from POST request body
+    values = request.form.items()
+    names = []
+    valueElements = []
+    for i in values:
+        names.append(i[0])
+        valueElements.append(i[1])
+    print(names)
+    # Build the INSERT statement
+    insert_stmt = 'INSERT INTO {} ({}) VALUES ({})'.format(
+        table,
+        ', '.join(str(x) for x in names),
+        ", ".join(["?"] * len(names))
+    )
 
-# API route to search for rows that match a given search term
-@app.route('/search_rows', methods=['POST'])
-def search_rows():
-  # Parse the request data
-  data = request.get_json()
-  search_term = data.get('search_term')
+    # Execute the INSERT statement
+    print(valueElements)
+    c.execute(insert_stmt, valueElements)
 
-  # Search for rows that match the search term
-  rows = search_rows(search_term)
+    # Commit the changes
+    conn.commit()
 
-  # Return the search results
-  return jsonify({'rows': rows})
+    # Close the connection
+    conn.close()
+    return jsonify({'message': 'row inserted successfully'})
 
-# API route to count the number of rows in the database
-@app.route('/count_rows', methods=['GET'])
-def count_rows():
-  # Count the number of rows in the database
-  count = count_rows()
 
-  # Return the row count
-  return jsonify({'count': count})
 
-# API route to add a new row to the database
-@app.route('/add_row', methods=['POST'])
-def add_row():
-  # Parse the request data
-  data = request.get_json()
-  name = data.get('name')
-  age = data.get('age')
 
-  # Add the row to the database
-  add_row(name, age)
+# client side
+@app.route('/get')
+def home():
+    # Connect to the database
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
 
-  # Return a success response
-  return jsonify({'success': True})
+    # Retrieve all data from the combine table
 
-# API route to retrieve all rows from the database
-@app.route('/get_all_rows', methods=['GET'])
-def get_all_rows():
-  # Retrieve all rows from the database
-  rows = get_all_rows()
+    rows = c.fetchall()
 
-  # Return the rows
-  return jsonify({'rows': rows})
+    # Close the connection
+    conn.close()
 
-# API route to retrieve a single row by id
-@app.route('/get_row', methods=['POST'])
-def get_row():
-  # Parse the request data
-  data = request.get_json()
-  id = data.get('id')
+    # Render the data as a table in a web page
+    return render_template("main_page.html", combine_rows=rows)
 
-  # Retrieve the row by id
-  row = get_row(id)
-
-  # Return the row
-  return jsonify({'
 
 
