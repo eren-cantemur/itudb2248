@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>{{table_name}}</title>
+        <style>
+            table, th, td {
+              border: 1px solid black;
+              border-collapse: collapse;
+            }
+
+            th {
+              background-color: #333;
+              color: white;
+            }
+
+            th, td {
+              padding: 10px 20px;
+              text-align: left;
+            }
+
+            tr:nth-child(even) {
+              background-color: #f2f2f2;
+            }
+
+            tr:hover {
+              background-color: #ddd;
+            }
+        </style>
+    </head>
+    <body>
+         <form action="/insert_row/{{ table_name }}" method="post">
+            {% for row in column_names %}
+                <label for="{{row}}">{{ row }}:</label>
+                <input type="text" id="{{row}}" name="{{row}}" required> <br>
+            {% endfor %}
+          <input type="submit" value="Submit">
+        </form>
+
+        <!-- JavaScript to call the API -->
+        <h1>{{table_name}} Data</h1>
+        <table>
+            <tr>
+                {% for name in column_names %}
+                    <th>{{ name }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in rows %}
+                <tr>
+                    {% for element in row %}
+                        <td>{{ element }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
