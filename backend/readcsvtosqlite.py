@@ -48,6 +48,35 @@ CREATE TABLE IF NOT EXISTS games (
 )
 """)
 conn.commit()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS players (
+    playerId INTEGER PRIMARY KEY,
+    FOREIGN KEY (combineId) REFERENCES combine(combineId)
+    nameFirst TEXT,
+    nameLast TEXT,
+    position TEXT,
+    college TEXT,
+    heightInches REAL
+)
+""")
+conn.commit()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS rusher (
+    rushId INTEGER PRIMARY KEY,
+    FOREIGN KEY (playId) REFERENCES play(playId)
+    FOREIGN KEY (playerId) REFERENCES players(playerId)
+    rushPosition TEXT,
+    rushType TEXT,
+    rushDirection TEXT,
+    rushLandmark TEXT
+    rushYards INTEGER
+)
+""")
+conn.commit()
+
+
 # Read data from CSV file and write it to the database
 with open('combine.csv') as csvfile:
   reader = csv.DictReader(csvfile)
@@ -74,6 +103,33 @@ with open('games.csv') as csvfile:
       VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (row['gameId'], row['season'], row['week'], row['gameDate'], row['gameTimeEastern'],
           row['gameTimeLocal'], row['seasonType']))
+
+with open('players.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute(" INSERT INTO combine (playerId, combineId, nameFirst, nameLast, position, college, heightInches) VALUES (?, ?, ?, ?, ?, ?, ?)", ( row['playerId'], row['combineId'], row['nameFirst'], row['nameLast'], row['position'], row['college'], row['heightInches']))
+    print(row["playerId"])
+conn.commit()
+
+with open('rusher.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute(" INSERT INTO combine (rushId, playId, playerId, rushPosition, rushType, rushDirection, rushLandmark, rushYards) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+    (row['rushId'], row['playId'], row['playerId'], row['rushPosition'], row['rushType'], row['rushDirection'], row['rushLandmark'], row['rushYards']))
+    print(row["combineId"])
+conn.commit()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Save (commit) the changes
