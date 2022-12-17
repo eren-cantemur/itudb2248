@@ -1,78 +1,11 @@
-#read combines.csv fumbles.csv games.csv
-from flask import Flask, request
 import sqlite3
 import csv
-
-app = Flask(__name__)
 
 # Connect to the database
 conn = sqlite3.connect('my_database.db')
 cursor = conn.cursor()
 
 # Create a table
-cursor.execute("""
-
-CREATE TABLE IF NOT EXISTS gameParticipation (
-  gamePartId INTEGER PRIMARY KEY,
-  FOREIGN KEY(gameId) REFERENCES games(gameId),
-  FOREIGN KEY(playerId) REFERENCES players(playerId),
-  gamePartUnit TEXT,
-  gamePartSnapCount INTEGER,
-  playerProfileUri TEXT,
-  homeCity TEXT,
-  homeState TEXT
-  """)
-
-CREATE TABLE IF NOT EXISTS combine (
-    combineId INTEGER PRIMARY KEY,
-    playerId INTEGER,
-    combineYear INTEGER,
-    combinePosition TEXT,
-    combineHeight REAL,
-    combineWeight REAL,
-    combineHand REAL
-    """)
-
-cursor.execute("""
-CREATE TABLE IF NOT EXIST plays (
-  playId INTEGER PRIMARY KEY,
-  FOREIGN KEY(gameId) REFERENCES games(gameId),
-  playSequence INTEGER,
-  quarter INTEGER,
-  playType TEXT,
-  playType2 TEXT,
-  playNumberByTeam INTEGER
-)
-""")
-
-# Read data from CSV file and write it to the database
-with open('gameParticipation.csv') as csvfile:
-  reader = csv.DictReader(csvfile)
-  for row in reader:
-    cursor.execute(" INSERT INTO gamePaticipation (gamePartId, gameId, playerId, gamePartUnit, gamePartSnapCount, playerProfileUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (row['gamePartId'], row['gameId'], row['playerId'], row['gamePartUnit'], row['gamePartSnapCount'], row['playerProfileUri'], row['homeCity'], row['homeState']))
-    print(row["gamePartId"])
-conn.commit()
-
-with open('plays.csv') as csvfile:
-  reader = csv.DictReader(csvfile)
-  for row in reader:
-    cursor.execute(" INSERT INTO plays (playId, gameID, playSequence, quarter, playType, playType2, playNumberByTeam) VALUES (?, ?, ?, ?, ?, ?, ?)", (row['playId'], row['gameId'], row['playSequence'], row['quarter'], row['playType'], row['playType2'], row['playNumberByTeam']))
-    print(row["playId"])
-conn.commit()
-=======
-CREATE TABLE IF NOT EXISTS fumbles (
-    fumId INTEGER PRIMARY KEY,
-    playId INTEGER,
-    playerId INTEGER,
-    fumPosition TEXT,
-    fumType TEXT,
-    fumOOB INTEGER,
-    fumTurnover REAL,
-    fumNull INTEGER
-)
-""")
-
-
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS games (
     gameId INTEGER PRIMARY KEY,
@@ -87,6 +20,31 @@ CREATE TABLE IF NOT EXISTS games (
 conn.commit()
 
 cursor.execute("""
+CREATE TABLE IF NOT EXIST plays (
+  playId INTEGER PRIMARY KEY,
+  FOREIGN KEY(gameId) REFERENCES games(gameId),
+  playSequence INTEGER,
+  quarter INTEGER,
+  playType TEXT,
+  playType2 TEXT,
+  playNumberByTeam INTEGER
+""")
+conn.commit()
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS combine (
+    combineId INTEGER PRIMARY KEY,
+    playerId INTEGER,
+    combineYear INTEGER,
+    combinePosition TEXT,
+    combineHeight REAL,
+    combineWeight REAL,
+    combineHand REAL
+    """)
+conn.commit()
+
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS players (
     playerId INTEGER PRIMARY KEY,
     FOREIGN KEY (combineId) REFERENCES combine(combineId)
@@ -97,6 +55,33 @@ CREATE TABLE IF NOT EXISTS players (
     heightInches REAL
 )
 """)
+conn.commit()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS fumbles (
+    fumId INTEGER PRIMARY KEY,
+    playId INTEGER,
+    playerId INTEGER,
+    fumPosition TEXT,
+    fumType TEXT,
+    fumOOB INTEGER,
+    fumTurnover REAL,
+    fumNull INTEGER
+)
+""")
+conn.commit()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS gameParticipation (
+  gamePartId INTEGER PRIMARY KEY,
+  FOREIGN KEY(gameId) REFERENCES games(gameId),
+  FOREIGN KEY(playerId) REFERENCES players(playerId),
+  gamePartUnit TEXT,
+  gamePartSnapCount INTEGER,
+  playerProfileUri TEXT,
+  homeCity TEXT,
+  homeState TEXT
+  """)
 conn.commit()
 
 cursor.execute("""
@@ -115,23 +100,6 @@ conn.commit()
 
 
 # Read data from CSV file and write it to the database
-with open('combine.csv') as csvfile:
-  reader = csv.DictReader(csvfile)
-  for row in reader:
-    cursor.execute(" INSERT INTO combine (combineId, playerId, combineYear, combinePosition, combineHeight, combineWeight, combineHand) VALUES (?, ?, ?, ?, ?, ?, ?)", (row['combineId'], row['playerId'], row['combineYear'], row['combinePosition'], row['combineHeight'], row['combineWeight'], row['combineHand']))
-    print(row["combineId"])
-conn.commit()
-
-
-with open('fumbles.csv') as csvfile:
-  reader = csv.DictReader(csvfile)
-  for row in reader:
-    cursor.execute("""
-      INSERT INTO fumbles (fumId, playId, playerId, fumPosition, fumType, fumOOB, fumTurnover, fumNull)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """, (row['fumId'], row['playId'], row['playerId'], row['fumPosition'], row['fumType'], row['fumOOB'], row['fumTurnover'], row['fumNull']))
-
-conn.commit()
 with open('games.csv') as csvfile:
   reader = csv.DictReader(csvfile)
   for row in reader:
@@ -140,6 +108,21 @@ with open('games.csv') as csvfile:
       VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (row['gameId'], row['season'], row['week'], row['gameDate'], row['gameTimeEastern'],
           row['gameTimeLocal'], row['seasonType']))
+conn.commit()
+
+with open('plays.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute(" INSERT INTO plays (playId, gameID, playSequence, quarter, playType, playType2, playNumberByTeam) VALUES (?, ?, ?, ?, ?, ?, ?)", (row['playId'], row['gameId'], row['playSequence'], row['quarter'], row['playType'], row['playType2'], row['playNumberByTeam']))
+    print(row["playId"])
+conn.commit()
+
+with open('combine.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute(" INSERT INTO combine (combineId, playerId, combineYear, combinePosition, combineHeight, combineWeight, combineHand) VALUES (?, ?, ?, ?, ?, ?, ?)", (row['combineId'], row['playerId'], row['combineYear'], row['combinePosition'], row['combineHeight'], row['combineWeight'], row['combineHand']))
+    print(row["combineId"])
+conn.commit()
 
 with open('players.csv') as csvfile:
   reader = csv.DictReader(csvfile)
@@ -148,13 +131,27 @@ with open('players.csv') as csvfile:
     print(row["playerId"])
 conn.commit()
 
+with open('fumbles.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute("""
+      INSERT INTO fumbles (fumId, playId, playerId, fumPosition, fumType, fumOOB, fumTurnover, fumNull)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (row['fumId'], row['playId'], row['playerId'], row['fumPosition'], row['fumType'], row['fumOOB'], row['fumTurnover'], row['fumNull']))
+conn.commit()
+
+
+with open('gameParticipation.csv') as csvfile:
+  reader = csv.DictReader(csvfile)
+  for row in reader:
+    cursor.execute(" INSERT INTO gamePaticipation (gamePartId, gameId, playerId, gamePartUnit, gamePartSnapCount, playerProfileUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (row['gamePartId'], row['gameId'], row['playerId'], row['gamePartUnit'], row['gamePartSnapCount'], row['playerProfileUri'], row['homeCity'], row['homeState']))
+    print(row["gamePartId"])
+conn.commit()
+
 with open('rusher.csv') as csvfile:
   reader = csv.DictReader(csvfile)
   for row in reader:
     cursor.execute(" INSERT INTO combine (rushId, playId, playerId, rushPosition, rushType, rushDirection, rushLandmark, rushYards) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
     (row['rushId'], row['playId'], row['playerId'], row['rushPosition'], row['rushType'], row['rushDirection'], row['rushLandmark'], row['rushYards']))
     print(row["combineId"])
-conn.commit()
-
-# Save (commit) the changes
 conn.commit()
