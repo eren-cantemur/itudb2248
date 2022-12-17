@@ -13,8 +13,8 @@ cursor = conn.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS gameParticipation (
   gamePartId INTEGER PRIMARY KEY,
-  gameId INTEGER,
-  playerId INTEGER,
+  FOREIGN KEY(gameId) REFERENCES games(gameId),
+  FOREIGN KEY(playerId) REFERENCES players(playerId),
   gamePartUnit TEXT,
   gamePartSnapCount INTEGER,
   playerProfileUri TEXT,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS gameParticipation (
 cursor.execute("""
 CREATE TABLE IF NOT EXIST plays (
   playId INTEGER PRIMARY KEY,
-  gameID INTEGER,
+  FOREIGN KEY(gameId) REFERENCES games(gameId),
   playSequence INTEGER,
   quarter INTEGER,
   playType TEXT,
