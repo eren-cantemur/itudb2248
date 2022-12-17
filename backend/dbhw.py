@@ -8,7 +8,6 @@ app = Flask(__name__, template_folder='../frontend')
 conn = sqlite3.connect('my_database.db')
 cursor = conn.cursor()
 
-
 # Function to retrieve all rows from the database
 @app.route('/get_table_data/<table>', methods=['GET'])
 def get_table_data(table):
@@ -23,6 +22,12 @@ def get_table_data(table):
     foreignIndexes = []
     foreignTables = []
 
+    if (table == "gameParticipation"):
+        foreignIndexes = [1, 2]
+        foreignTables = ["games", "players"]
+    if (table == "plays"):
+        foreignIndexes = [1]
+        foreignTables = ["games"]
     if (table == "combine"):
         foreignIndexes = [1]
         foreignTables = ["players"]
@@ -30,6 +35,7 @@ def get_table_data(table):
     if (table == "fumbles"):
         foreignIndexes = [1, 2]
         foreignTables = ["plays", "players"]
+
 
     # close connection
     conn.close()
@@ -47,6 +53,13 @@ def get_row(table, idName, id):
     row = c.fetchall()
     foreignIndexes = []
     foreignTables = []
+
+    if (table == "gameParticipation"):
+        foreignIndexes = [1, 2]
+        foreignTables = ["games", "players"]
+    if (table == "plays"):
+        foreignIndexes = [1]
+        foreignTables = ["games"]
     if table == "combines":
         foreignIndexes = [1]
         foreignTables = ["players"]
@@ -89,6 +102,23 @@ def insert_table_row(table):
     return jsonify({'message': 'row inserted successfully'})
 
 
+
+# client side
+@app.route('/get')
+def home():
+    # Connect to the database
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
+
+    # Retrieve all data from the combine table
+
+    rows = c.fetchall()
+
+    # Close the connection
+    conn.close()
+
+    # Render the data as a table in a web page
+    return render_template("main_page.html", combine_rows=rows)
 
 
 # Pass the rows to the template to be rendered as an HTML table
