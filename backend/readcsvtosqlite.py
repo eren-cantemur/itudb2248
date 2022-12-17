@@ -13,7 +13,7 @@ cursor = conn.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS combine (
     combineId INTEGER PRIMARY KEY,
-    playerId INTEGER,
+    FOREIGN KEY(playerId) REFERENCES players(playerId),
     combineYear INTEGER,
     combinePosition TEXT,
     combineHeight REAL,
@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS combine (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS fumbles (
     fumId INTEGER PRIMARY KEY,
-    playId INTEGER,
+    FOREIGN KEY(playId) REFERENCES plays(playId),
+    FOREIGN KEY(playerId) REFERENCES players(playerId),
     playerId INTEGER,
     fumPosition TEXT,
     fumType TEXT,
