@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import sqlite3
 import csv
 
-app = Flask(__name__, template_folder='../frontend')
+app = Flask(__name__, template_folder='../frontend', static_folder='../static')
 
 # Connect to the database
 conn = sqlite3.connect('my_database.db')
