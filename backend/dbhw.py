@@ -54,6 +54,10 @@ def get_row(table, idName, id):
     return render_template("main_page.html", rows=row, table_name=table, column_names=names,
                            foreignIndexes=foreignIndexes, foreignTables=[foreignTables])
 
+@app.route('/')
+
+def serve_nfl_page():
+    return render_template('landing_page.html')
 
 @app.route('/insert_row/<table>', methods=['POST'])
 def insert_table_row(table):
