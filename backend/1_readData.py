@@ -125,102 +125,102 @@ conn.commit()
 
 
 # Read data from CSV file and write it to the database
-# with open('games.csv') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#         try:
-#             cursor.execute("""
-#       INSERT INTO games (gameId, season, week, gameDate, gameTimeEastern, gameTimeLocal, seasonType)
-#       VALUES (?, ?, ?, ?, ?, ?, ?)
-#     """, (row['gameId'], row['season'], row['week'], row['gameDate'], row['gameTimeEastern'],
-#                 row['gameTimeLocal'], row['seasonType']))
-#             print("Game: " + row["gameId"])
-#         except:
-#           pass
+with open('games.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        try:
+            cursor.execute("""
+      INSERT INTO games (gameId, season, week, gameDate, gameTimeEastern, gameTimeLocal, seasonType)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (row['gameId'], row['season'], row['week'], row['gameDate'], row['gameTimeEastern'],
+                row['gameTimeLocal'], row['seasonType']))
+            print("Game: " + row["gameId"])
+        except:
+          pass
 
-# conn.commit()
+conn.commit()
 
-# with open('plays.csv') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#       try:
-#         cursor.execute(" INSERT INTO plays (playId, gameID, playSequence, quarter, playType, playType2, playNumberByTeam) VALUES (?, ?, ?, ?, ?, ?, ?)",
-#                        (row['playId'], row['gameId'], row['playSequence'], row['quarter'], row['playType'], row['playType2'], row['playNumberByTeam']))
-#         print("Play: " + row["playId"])
-#       except:
-#         pass
-# conn.commit()
+with open('plays.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+      try:
+        cursor.execute(" INSERT INTO plays (playId, gameID, playSequence, quarter, playType, playType2, playNumberByTeam) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                       (row['playId'], row['gameId'], row['playSequence'], row['quarter'], row['playType'], row['playType2'], row['playNumberByTeam']))
+        print("Play: " + row["playId"])
+      except:
+        pass
+conn.commit()
 
-# with open('combine.csv') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#         row = change_empty_values(row)
-#         try:  
-#           cursor.execute(" INSERT INTO combine (combineId, combineYear, combinePosition, combineHeight, combineWeight, combineHand) VALUES (?, ?, ?, ?, ?, ?)",
-#                         (row['combineId'], row['combineYear'], row['combinePosition'], row['combineHeight'], row['combineWeight'], row['combineHand']))
-#           print("Combine: " + row["combineId"])
-#         except:
-#           pass
-# conn.commit()
+with open('combine.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        row = change_empty_values(row)
+        try:  
+          cursor.execute(" INSERT INTO combine (combineId, combineYear, combinePosition, combineHeight, combineWeight, combineHand) VALUES (?, ?, ?, ?, ?, ?)",
+                        (row['combineId'], row['combineYear'], row['combinePosition'], row['combineHeight'], row['combineWeight'], row['combineHand']))
+          print("Combine: " + row["combineId"])
+        except:
+          pass
+conn.commit()
 
-# with open('players.csv') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#         row = change_empty_values(row)
-#         try:
-#           cursor.execute(" INSERT INTO players (playerId, combineId, nameFirst, nameLast, position, college, heightInches) VALUES (?, ?, ?, ?, ?, ?, ?)",
-#                         (row['playerId'], row['combineId'], row['nameFirst'], row['nameLast'], row['position'], row['college'], row['heightInches']))
-#           print("Player: " + row["playerId"])
-#         except:
-#           pass
-# conn.commit()
-
-
-# cursor.execute("""
-#   ALTER TABLE combine
-#   ADD COLUMN playerId INTEGER REFERENCES players(playerId)
-# """)
-# conn.commit()
-
-# with open('combine.csv') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#         row = change_empty_values(row)
-#         print("Combine: " + row["combineId"] + "Player: " + row["playerId"])
-#         try:
-#             cursor.execute(" UPDATE combine SET playerId=(?) WHERE combineId=(?)",
-#                            (row["playerId"], row["combineId"]))
-#         except:
-#             pass
-# conn.commit()
+with open('players.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        row = change_empty_values(row)
+        try:
+          cursor.execute(" INSERT INTO players (playerId, combineId, nameFirst, nameLast, position, college, heightInches) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        (row['playerId'], row['combineId'], row['nameFirst'], row['nameLast'], row['position'], row['college'], row['heightInches']))
+          print("Player: " + row["playerId"])
+        except:
+          pass
+conn.commit()
 
 
-# with open('fumbles.csv') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#         row = change_empty_values(row)
-#         try:
-#           cursor.execute("""
-#         INSERT INTO fumbles (fumId, playId, playerId, fumPosition, fumType, fumOOB, fumTurnover, fumNull)
-#         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-#       """, (row['fumId'], row['playId'], row['playerId'], row['fumPosition'], row['fumType'], row['fumOOB'], row['fumTurnover'], row['fumNull']))
-#           print("Fumble: " + row["fumId"])
-#         except:
-#           pass
-# conn.commit()
+cursor.execute("""
+  ALTER TABLE combine
+  ADD COLUMN playerId INTEGER REFERENCES players(playerId)
+""")
+conn.commit()
+
+with open('combine.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        row = change_empty_values(row)
+        print("Combine: " + row["combineId"] + "Player: " + row["playerId"])
+        try:
+            cursor.execute(" UPDATE combine SET playerId=(?) WHERE combineId=(?)",
+                           (row["playerId"], row["combineId"]))
+        except:
+            pass
+conn.commit()
 
 
-# with open('gameParticipation.csv') as csvfile:
-#     reader = csv.DictReader(csvfile)
-#     for row in reader:
-#         row = change_empty_values(row)
-#         try:
-#           cursor.execute(" INSERT INTO gameParticipation (gamePartId, gameId, playerId, gamePartUnit, gamePartSnapCount, playerProfileUrl, homeCity, homeState) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-#                         (row['gamePartId'], row['gameId'], row['playerId'], row['gamePartUnit'], row['gamePartSnapCount'], row['playerProfileUrl'], row['homeCity'], row['homeState']))
-#           print("GamePart: " + row["gamePartId"])
-#         except:
-#           pass
-# conn.commit()
+with open('fumbles.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        row = change_empty_values(row)
+        try:
+          cursor.execute("""
+        INSERT INTO fumbles (fumId, playId, playerId, fumPosition, fumType, fumOOB, fumTurnover, fumNull)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      """, (row['fumId'], row['playId'], row['playerId'], row['fumPosition'], row['fumType'], row['fumOOB'], row['fumTurnover'], row['fumNull']))
+          print("Fumble: " + row["fumId"])
+        except:
+          pass
+conn.commit()
+
+
+with open('gameParticipation.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        row = change_empty_values(row)
+        try:
+          cursor.execute(" INSERT INTO gameParticipation (gamePartId, gameId, playerId, gamePartUnit, gamePartSnapCount, playerProfileUrl, homeCity, homeState) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        (row['gamePartId'], row['gameId'], row['playerId'], row['gamePartUnit'], row['gamePartSnapCount'], row['playerProfileUrl'], row['homeCity'], row['homeState']))
+          print("GamePart: " + row["gamePartId"])
+        except:
+          pass
+conn.commit()
 
 with open('rusher.csv') as csvfile:
     reader = csv.DictReader(csvfile)
