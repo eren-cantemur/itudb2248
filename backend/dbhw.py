@@ -67,6 +67,33 @@ def get_row(table, idName, id):
     return render_template("main_page.html", rows=row, table_name=table, column_names=names,
                            foreignIndexes=foreignIndexes, foreignTables=[foreignTables])
 
+@app.route('/delete_row/<table>, methods=['POST'])
+def delete_row_from_table(table, idName):
+    # connect to sqlite database
+    print("del")
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
+
+    # retrieve values from POST request body
+    idValue = request.form.items()
+
+    # Build the DELETE statement
+
+    delete_sth = 'DELETE FROM {} WHERE {} = ?'.format(
+        table,
+        idName
+    )
+
+    # Execute the DELETE statement
+    c.execute(delete_sth, idValue)
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the connection
+    conn.close()
+    return jsonify({'message': 'row deleted successfully'})
+
 
 @app.route('/insert_row/<table>', methods=['POST'])
 def insert_table_row(table):

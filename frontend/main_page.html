@@ -34,6 +34,12 @@
             {% endfor %}
           <input type="submit" value="Submit">
         </form>
+		
+		<form action="/delete_row/{{ table_name }}" method="post">
+			<label for="{{column_names[0]}}">{{ column_names[0] }}:</label>
+			<input type="text" id="{{column_names[0]}}" name="{{column_names[0]}}" required> <br>
+			<input type="submit" value="Submit">
+        </form>
 
         <!-- JavaScript to call the API -->
         <h1>{{table_name}} Data</h1>
