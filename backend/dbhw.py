@@ -130,6 +130,43 @@ def insert_table_row(table):
     conn.close()
     return jsonify({'message': 'row inserted successfully'})
 
+@app.route('/update_row/<table>', methods=['POST'])
+def update_table_row(table):
+    # connect to sqlite database
+    print("upd")
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
+
+    # retrieve values from POST request body
+    values = request.form.items()
+    names = []
+    valueElements = []
+    for i in values:
+        names.append(i[0])
+        valueElements.append(i[1])
+
+    primaryKeyName = names[0]
+    names.remove(primaryKeyName)
+    primaryKeyValue = valueElements[0]
+    valueElements.remove(primaryKeyValue)
+    
+    # Build the UPDATE statement
+    insert_stmt = 'UPDATE {} SET ({}) = ({}) WHERE {} = ?'.format(
+        table,
+        ', '.join(str(x) for x in names),
+        ", ".join(["?"] * len(names)),
+        primaryKeyName
+    )
+
+    # Execute the UPDATE statement
+    c.execute(update_stmt, valueElements, primaryKeyValue)
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the connection
+    conn.close()
+    return jsonify({'message': 'row updated successfully'})
 
 
 # client side
