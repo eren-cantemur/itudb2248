@@ -67,6 +67,35 @@ def get_row(table, idName, id):
     return render_template("main_page.html", rows=row, table_name=table, column_names=names,
                            foreignIndexes=foreignIndexes, foreignTables=[foreignTables])
 
+@app.route('/delete_row/<table>, methods=['POST'])
+def delete_row_from_table(table):
+    # connect to sqlite database
+    print("del")
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
+
+    # retrieve values from POST request body
+    values = request.form.items()
+    idName = str(values[0])
+    idValue = int(values[1])
+
+    # Build the DELETE statement
+
+    delete_sth = 'DELETE FROM {} WHERE {} = ?'.format(
+        table,
+        idName
+    )
+
+    # Execute the DELETE statement
+    c.execute(delete_sth, idValue)
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the connection
+    conn.close()
+    return jsonify({'message': 'row deleted successfully'})
+
 
 @app.route('/insert_row/<table>', methods=['POST'])
 def insert_table_row(table):
@@ -101,6 +130,43 @@ def insert_table_row(table):
     conn.close()
     return jsonify({'message': 'row inserted successfully'})
 
+@app.route('/update_row/<table>', methods=['POST'])
+def update_table_row(table):
+    # connect to sqlite database
+    print("upd")
+    conn = sqlite3.connect('my_database.db')
+    c = conn.cursor()
+
+    # retrieve values from POST request body
+    values = request.form.items()
+    names = []
+    valueElements = []
+    for i in values:
+        names.append(i[0])
+        valueElements.append(i[1])
+
+    primaryKeyName = names[0]
+    names.remove(primaryKeyName)
+    primaryKeyValue = valueElements[0]
+    valueElements.remove(primaryKeyValue)
+    
+    # Build the UPDATE statement
+    insert_stmt = 'UPDATE {} SET ({}) = ({}) WHERE {} = ?'.format(
+        table,
+        ', '.join(str(x) for x in names),
+        ", ".join(["?"] * len(names)),
+        primaryKeyName
+    )
+
+    # Execute the UPDATE statement
+    c.execute(update_stmt, valueElements, primaryKeyValue)
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the connection
+    conn.close()
+    return jsonify({'message': 'row updated successfully'})
 
 
 # client side

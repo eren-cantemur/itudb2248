@@ -27,12 +27,29 @@
         </style>
     </head>
     <body>
+		<h2>Insertion Operation</h2>
          <form action="/insert_row/{{ table_name }}" method="post">
             {% for row in column_names %}
                 <label for="{{row}}">{{ row }}:</label>
                 <input type="text" id="{{row}}" name="{{row}}" required> <br>
             {% endfor %}
           <input type="submit" value="Submit">
+        </form>
+		
+		<h2>Update Operation</h2>
+		<form action="/update_row/{{ table_name }}" method="post">
+            {% for row in column_names %}
+                <label for="{{row}}">{{ row }}:</label>
+                <input type="text" id="{{row}}" name="{{row}}" required> <br>
+            {% endfor %}
+          <input type="submit" value="Submit">
+        </form>
+		
+		<h2>Delete Operation</h2>
+		<form action="/delete_row/{{ table_name }}" method="post">
+			<label for="{{column_names[0]}}">{{ column_names[0] }}:</label>
+			<input type="text" id="{{column_names[0]}}" name="{{column_names[0]}}" required> <br>
+			<input type="submit" value="Submit">
         </form>
 
         <!-- JavaScript to call the API -->
