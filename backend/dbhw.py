@@ -68,14 +68,16 @@ def get_row(table, idName, id):
                            foreignIndexes=foreignIndexes, foreignTables=[foreignTables])
 
 @app.route('/delete_row/<table>, methods=['POST'])
-def delete_row_from_table(table, idName):
+def delete_row_from_table(table):
     # connect to sqlite database
     print("del")
     conn = sqlite3.connect('my_database.db')
     c = conn.cursor()
 
     # retrieve values from POST request body
-    idValue = request.form.items()
+    values = request.form.items()
+    idName = str(values[0])
+    idValue = int(values[1])
 
     # Build the DELETE statement
 
