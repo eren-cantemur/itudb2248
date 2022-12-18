@@ -7,6 +7,10 @@ app = Flask(__name__, template_folder='../frontend')
 conn = sqlite3.connect('my_database.db')
 cursor = conn.cursor()
 
+@app.route('/')
+def serve_nfl_page():
+    return render_template('landing_page.html')
+
 # Function to retrieve all rows from the database
 @app.route('/get_table_data/<table>', methods=['GET'])
 def get_table_data(table):
